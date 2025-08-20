@@ -15,12 +15,10 @@ RUN cargo build --release
 
 FROM alpine:latest
 
-RUN apk add --no-cache libgcc openssl tini
+RUN apk add --no-cache libgcc openssl
 
 COPY --from=build /usr/src/sidecar/target/release/sidecar /usr/sidecar
-COPY entrypoint.sh /usr/entrypoint.sh
-RUN chmod +x /usr/entrypoint.sh
 
 WORKDIR /usr
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/entrypoint.sh"]
+ENTRYPOINT ["/usr/sidecar"]
