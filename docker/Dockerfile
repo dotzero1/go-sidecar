@@ -1,11 +1,16 @@
-FROM rust:1.72-alpine AS build
+FROM rust:1.89-alpine AS build
 
 RUN apk add --no-cache musl-dev openssl-dev pkgconfig
 
 WORKDIR /usr/src/sidecar
 COPY Cargo.toml Cargo.lock ./
+# Create dummy main.rs to cache dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
+# Remove the dummy build artifacts and copy real source
+RUN rm -rf src target/release/sidecar
 COPY src ./src
+# Build the actual application
 RUN cargo build --release
 
 FROM alpine:latest
